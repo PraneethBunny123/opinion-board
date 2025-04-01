@@ -1,32 +1,37 @@
-import { useActionState } from "react";
+import { useActionState, use } from "react";
+import { OpinionsContext } from "../store/opinions-context";
 
 export function NewOpinion() {
-  function submitAction(prevAction, formData) {
-    const yourName = formData.get('userName')
+  const {addOpinion} = use(OpinionsContext)
+
+  async function submitAction(prevAction, formData) {
+
     const title = formData.get('title')
-    const opinion = formData.get('body')
+    const body = formData.get('body')
+    const userName = formData.get('userName')
 
     const errors = []
-    if(yourName.length < 1) {
+    if(userName.trim().length < 1) {
       errors.push('please enter your name')
     }
 
-    if(title.length < 1) {
+    if(title.trim().length < 1) {
       errors.push('please enter the title')
     }
 
-    if(opinion.length < 10) {
+    if(body.trim().length < 10) {
       errors.push('please enter your opinion')
     }
 
     if(errors.length > 0) {
       return {errors, enteredValues: {
-        yourName,
+        userName,
         title,
-        opinion
+        body
       }}
     }
 
+    await addOpinion({title, body, userName})
     return {errors: null}
   }
 
@@ -39,7 +44,7 @@ export function NewOpinion() {
         <div className="control-row">
           <p className="control">
             <label htmlFor="userName">Your Name</label>
-            <input type="text" id="userName" name="userName" defaultValue={formState.enteredValues?.yourName}/>
+            <input type="text" id="userName" name="userName" defaultValue={formState.enteredValues?.userName}/>
           </p>
 
           <p className="control">
@@ -49,7 +54,7 @@ export function NewOpinion() {
         </div>
         <p className="control">
           <label htmlFor="body">Your Opinion</label>
-          <textarea id="body" name="body" rows={5} defaultValue={formState.enteredValues?.opinion}></textarea>
+          <textarea id="body" name="body" rows={5} defaultValue={formState.enteredValues?.body}></textarea>
         </p>
 
         {formState.errors && (
